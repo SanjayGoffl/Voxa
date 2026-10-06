@@ -1,0 +1,101 @@
+review_id,product_id,product_name,rating,review_text,date
+R0001,P001,Aurora Running Shoes,2,"Overall, the packaging was torn open. while tracking info was never updated.",2025-01-17
+R0002,P001,Aurora Running Shoes,5,"Overall, it arrived earlier than expected.",2025-04-23
+R0003,P004,Halcyon Desk Lamp,5,"After a month of use, the build quality is excellent.",2025-05-23
+R0004,P002,Nimbus Backpack,2,"So far, it broke after just a few days.",2025-05-16
+R0005,P001,Aurora Running Shoes,3,"In my experience, the material feels cheap and flimsy. although true to size as listed.",2025-02-05
+R0006,P001,Aurora Running Shoes,5,"So far, the build quality is excellent.",2025-07-06
+R0007,P002,Nimbus Backpack,4,"Honestly, delivery was right on time.",2025-03-29
+R0008,P005,Drift Bluetooth Speaker,1,"So far, sizing was completely off.",2025-06-16
+R0009,P001,Aurora Running Shoes,4,"So far, the packaging was secure and protective. although the packaging was torn open.",2025-09-13
+R0010,P004,Halcyon Desk Lamp,2,"In my experience, the packaging was torn open.",2025-08-08
+R0011,P005,Drift Bluetooth Speaker,4,"In my experience, it arrived earlier than expected.",2025-01-25
+R0012,P001,Aurora Running Shoes,3,"So far, shipping was fast. while the fit was way too loose.",2025-01-06
+R0013,P001,Aurora Running Shoes,2,"After a month of use, it was way too complicated to set up.",2025-01-02
+R0014,P003,Cascade Water Bottle,4,"After a month of use, worth every penny.",2025-03-20
+R0015,P003,Cascade Water Bottle,3,"So far, excellent value for money. although the material feels cheap and flimsy.",2025-05-04
+R0016,P005,Drift Bluetooth Speaker,4,"Overall, it was so easy to set up.",2025-03-07
+R0017,P004,Halcyon Desk Lamp,4,"After a month of use, the unboxing experience was great.",2025-04-13
+R0018,P003,Cascade Water Bottle,4,"In my experience, the instructions were clear and simple. however the packaging was secure and protective.",2025-04-28
+R0019,P005,Drift Bluetooth Speaker,4,"So far, the build quality is excellent. although it broke after just a few days.",2025-09-21
+R0020,P002,Nimbus Backpack,5,"Honestly, true to size as listed. while delivery was right on time.",2025-07-28
+R0021,P002,Nimbus Backpack,4,"Overall, very intuitive to use.",2025-02-20
+R0022,P001,Aurora Running Shoes,3,"In my experience, the box arrived crushed. though the build quality is excellent.",2025-08-25
+R0023,P002,Nimbus Backpack,1,"Overall, way too expensive for this quality.",2025-02-17
+R0024,P002,Nimbus Backpack,4,"So far, it fits perfectly.",2025-07-14
+R0025,P001,Aurora Running Shoes,2,"In my experience, sizing was completely off.",2025-03-21
+R0026,P002,Nimbus Backpack,4,"Honestly, no defects at all after weeks of use. but the material feels cheap and flimsy.",2025-09-02
+R0027,P005,Drift Bluetooth Speaker,4,"After a month of use, the build quality is excellent.",2025-02-04
+R0028,P002,Nimbus Backpack,2,"In my experience, way too expensive for this quality. though it's a great price for what you get.",2025-05-14
+R0029,P002,Nimbus Backpack,2,"Honestly, the packaging was torn open.",2025-06-11
+R0030,P001,Aurora Running Shoes,5,"Overall, it's a great price for what you get. while it feels overpriced for what you get.",2025-03-09
+R0031,P003,Cascade Water Bottle,2,"Overall, there was barely any padding inside.",2025-09-28
+R0032,P001,Aurora Running Shoes,1,"After a month of use, the instructions were confusing.",2025-03-21
+R0033,P003,Cascade Water Bottle,3,"Honestly, tracking info was never updated. though the unboxing experience was great.",2025-01-27
+R0034,P001,Aurora Running Shoes,2,"In my experience, it broke after just a few days.",2025-03-24
+R0035,P004,Halcyon Desk Lamp,3,"After a month of use, it runs way too small. however worth every penny.",2025-07-09
+R0036,P005,Drift Bluetooth Speaker,1,"After a month of use, the fit was way too loose.",2025-07-03
+R0037,P002,Nimbus Backpack,4,"So far, it feels really sturdy and well made. however the unboxing experience was great.",2025-03-25
+R0038,P002,Nimbus Backpack,5,"In my experience, shipping was fast.",2025-05-08
+R0039,P003,Cascade Water Bottle,3,"So far, it feels really sturdy and well made. although the fit was way too loose.",2025-04-27
+R0040,P002,Nimbus Backpack,3,"Overall, shipping took way longer than expected. although it fits perfectly.",2025-07-24
+R0041,P005,Drift Bluetooth Speaker,4,"Honestly, it feels really sturdy and well made. but the material feels cheap and flimsy.",2025-08-11
+R0042,P003,Cascade Water Bottle,4,"Honestly, it's a great price for what you get.",2025-05-11
+R0043,P001,Aurora Running Shoes,4,"In my experience, worth every penny.",2025-07-06
+R0044,P004,Halcyon Desk Lamp,3,"Overall, the box arrived crushed. while excellent value for money.",2025-07-29
+R0045,P003,Cascade Water Bottle,3,"In my experience, there was barely any padding inside. however excellent value for money.",2025-06-04
+R0046,P004,Halcyon Desk Lamp,2,"After a month of use, there was barely any padding inside.",2025-08-27
+R0047,P004,Halcyon Desk Lamp,3,"In my experience, delivery was right on time. although it feels overpriced for what you get.",2025-06-21
+R0048,P001,Aurora Running Shoes,3,"So far, the packaging was secure and protective. though shipping took way longer than expected.",2025-02-07
+R0049,P004,Halcyon Desk Lamp,4,"In my experience, excellent value for money. however it arrived earlier than expected.",2025-02-24
+R0050,P004,Halcyon Desk Lamp,4,"So far, it was so easy to set up.",2025-08-22
+R0051,P002,Nimbus Backpack,5,"In my experience, excellent value for money. while the instructions were clear and simple.",2025-03-23
+R0052,P004,Halcyon Desk Lamp,5,"In my experience, shipping was fast.",2025-05-03
+R0053,P003,Cascade Water Bottle,1,"In my experience, it was way too complicated to set up.",2025-03-12
+R0054,P002,Nimbus Backpack,2,"So far, the instructions were confusing. although very intuitive to use.",2025-08-01
+R0055,P001,Aurora Running Shoes,4,"So far, true to size as listed.",2025-07-14
+R0056,P004,Halcyon Desk Lamp,4,"Overall, it came in a nice sturdy box.",2025-09-07
+R0057,P002,Nimbus Backpack,2,"Honestly, the fit was way too loose.",2025-03-26
+R0058,P004,Halcyon Desk Lamp,4,"So far, worth every penny. but the build quality is excellent.",2025-08-25
+R0059,P002,Nimbus Backpack,2,"Overall, the fit was way too loose.",2025-05-23
+R0060,P004,Halcyon Desk Lamp,1,"Honestly, sizing was completely off. however it fits perfectly.",2025-01-21
+R0061,P001,Aurora Running Shoes,4,"So far, the build quality is excellent. but it arrived defective.",2025-08-27
+R0062,P003,Cascade Water Bottle,4,"Honestly, worth every penny.",2025-06-09
+R0063,P001,Aurora Running Shoes,4,"After a month of use, it came in a nice sturdy box.",2025-02-08
+R0064,P005,Drift Bluetooth Speaker,4,"So far, the instructions were clear and simple.",2025-01-22
+R0065,P003,Cascade Water Bottle,1,"After a month of use, I couldn't figure out how to use it.",2025-08-04
+R0066,P004,Halcyon Desk Lamp,5,"Overall, it came in a nice sturdy box.",2025-04-01
+R0067,P005,Drift Bluetooth Speaker,4,"Honestly, worth every penny. however it fits perfectly.",2025-05-23
+R0068,P004,Halcyon Desk Lamp,5,"So far, excellent value for money.",2025-06-16
+R0069,P002,Nimbus Backpack,5,"In my experience, it came in a nice sturdy box.",2025-01-06
+R0070,P005,Drift Bluetooth Speaker,4,"So far, shipping was fast.",2025-09-01
+R0071,P004,Halcyon Desk Lamp,2,"In my experience, the material feels cheap and flimsy.",2025-07-08
+R0072,P004,Halcyon Desk Lamp,3,"After a month of use, the unboxing experience was great. though sizing was completely off.",2025-05-09
+R0073,P002,Nimbus Backpack,3,"Overall, tracking info was never updated. however the unboxing experience was great.",2025-09-05
+R0074,P003,Cascade Water Bottle,3,"After a month of use, it's a great price for what you get. however there was barely any padding inside.",2025-03-06
+R0075,P003,Cascade Water Bottle,2,"Overall, it feels overpriced for what you get.",2025-02-22
+R0076,P001,Aurora Running Shoes,5,"After a month of use, it fits perfectly. although it runs way too small.",2025-02-28
+R0077,P001,Aurora Running Shoes,5,"In my experience, no defects at all after weeks of use. while it broke after just a few days.",2025-02-13
+R0078,P002,Nimbus Backpack,3,"Overall, true to size as listed. though way too expensive for this quality.",2025-08-15
+R0079,P003,Cascade Water Bottle,4,"After a month of use, the packaging was secure and protective.",2025-04-17
+R0080,P002,Nimbus Backpack,2,"Honestly, it arrived defective. though shipping took way longer than expected.",2025-05-30
+R0081,P001,Aurora Running Shoes,1,"So far, it was way too complicated to set up. although it was so easy to set up.",2025-08-06
+R0082,P001,Aurora Running Shoes,1,"After a month of use, it was way too complicated to set up.",2025-01-31
+R0083,P002,Nimbus Backpack,3,"Honestly, very intuitive to use. although way too expensive for this quality.",2025-05-20
+R0084,P005,Drift Bluetooth Speaker,2,"After a month of use, it runs way too small.",2025-05-09
+R0085,P001,Aurora Running Shoes,4,"Overall, the instructions were clear and simple.",2025-05-18
+R0086,P005,Drift Bluetooth Speaker,4,"Overall, it fits perfectly.",2025-08-12
+R0087,P004,Halcyon Desk Lamp,4,"Overall, it came in a nice sturdy box.",2025-06-18
+R0088,P004,Halcyon Desk Lamp,5,"In my experience, the instructions were clear and simple. although the instructions were confusing.",2025-06-15
+R0089,P001,Aurora Running Shoes,3,"In my experience, the build quality is excellent. while not worth the money at all.",2025-08-15
+R0090,P001,Aurora Running Shoes,2,"So far, not worth the money at all.",2025-03-04
+R0091,P001,Aurora Running Shoes,1,"After a month of use, I couldn't figure out how to use it. but very intuitive to use.",2025-02-28
+R0092,P004,Halcyon Desk Lamp,5,"Overall, shipping was fast. though it fits perfectly.",2025-05-05
+R0093,P004,Halcyon Desk Lamp,1,"After a month of use, sizing was completely off.",2025-02-05
+R0094,P003,Cascade Water Bottle,2,"In my experience, it feels overpriced for what you get.",2025-09-08
+R0095,P002,Nimbus Backpack,1,"In my experience, sizing was completely off. however there was barely any padding inside.",2025-07-16
+R0096,P002,Nimbus Backpack,5,"In my experience, the unboxing experience was great.",2025-07-17
+R0097,P002,Nimbus Backpack,4,"In my experience, delivery was right on time.",2025-08-14
+R0098,P001,Aurora Running Shoes,4,"After a month of use, it feels really sturdy and well made.",2025-02-08
+R0099,P004,Halcyon Desk Lamp,5,"Honestly, worth every penny. while not worth the money at all.",2025-06-12
+R0100,P004,Halcyon Desk Lamp,2,"After a month of use, way too expensive for this quality.",2025-04-27

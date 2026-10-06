@@ -1,0 +1,21 @@
+review_id,product_id,rating,review_text,date,expected_sentiment,expected_themes,hard_case
+V001,P001,5,The build quality is fantastic and it still looks new after months of use.,2025-02-10,positive,quality,plain
+V002,P002,1,It broke within a week. Total waste of money.,2025-03-02,negative,quality|value,multi_theme
+V003,P003,5,"Delivery was super fast, arrived two days early.",2025-01-20,positive,delivery,plain
+V004,P004,2,Shipping took almost a month and tracking never updated.,2025-04-11,negative,delivery,plain
+V005,P001,4,"Great value for the price, and the packaging was sturdy too.",2025-02-15,positive,value|packaging,multi_theme
+V006,P002,2,The box arrived crushed and the item inside was scratched.,2025-03-18,negative,packaging|quality,multi_theme
+V007,P005,3,"Easy to set up but the sizing chart was way off, way too small.",2025-05-01,negative,usability|size_fit,but_sentence
+V008,P003,3,The material feels cheap but it fits true to size.,2025-02-28,negative,quality|size_fit,but_sentence
+V009,P004,4,"Setup was confusing at first, but once I figured it out it worked great.",2025-06-02,positive,usability,but_sentence
+V010,P001,3,"Shipping was fast, although the packaging was flimsy and torn.",2025-03-09,negative,delivery|packaging,but_sentence
+V011,P002,5,"It's okay I guess, does the job, nothing special.",2025-04-22,neutral,quality,rating_text_conflict
+V012,P005,1,"Honestly it's fine, just arrived a little later than I hoped.",2025-01-30,neutral,delivery,rating_text_conflict
+V013,P003,5,It broke the second day but I guess that's expected for the price.,2025-05-14,negative,quality|value,rating_text_conflict
+V014,P004,5,Love it!,2025-02-02,positive,,short
+V015,P001,1,Terrible quality.,2025-03-25,negative,quality,short
+V016,P002,3,It's fine.,2025-04-05,neutral,,short
+V017,P005,1,"Oh great, another product that falls apart in two days. Exactly what I wanted.",2025-05-20,negative,quality,sarcasm_like
+V018,P003,1,"Wow, five days late and the box was soaked, just perfect.",2025-06-10,negative,delivery|packaging,sarcasm_like
+V019,P001,2,"Sure, it's 'true to size' if you're a doll.",2025-02-19,negative,size_fit,sarcasm_like
+V020,P004,5,"No complaints at all, works exactly as described.",2025-03-30,positive,quality,negation
