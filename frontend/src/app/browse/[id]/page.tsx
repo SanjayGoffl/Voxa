@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { SentimentDonut, ThemeBars, TrendLine } from "@/components/charts";
 import { EvidencePanel } from "@/components/evidence-panel";
 import { ExplainDrawer } from "@/components/explain-drawer";
+import { CommentsSection } from "@/components/comments-section";
+import { ShieldCheck } from "lucide-react";
 
 export default function ProductDashboardPage() {
   const params = useParams<{ id: string }>();
@@ -17,16 +19,25 @@ export default function ProductDashboardPage() {
   const [insights, setInsights] = useState<ProductInsights | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedReview, setSelectedReview] = useState<string | null>(null);
+  const [ratingFilter, setRatingFilter] = useState<string>("all");
 
   useEffect(() => {
     if (!productId) return;
     setInsights(null);
     setError(null);
+    const [min, max] =
+      ratingFilter === "all"
+        ? [undefined, undefined]
+        : ratingFilter === "low"
+          ? [1, 2]
+          : ratingFilter === "mid"
+            ? [3, 3]
+            : [4, 5];
     api
-      .productInsights(productId)
+      .productInsights(productId, min, max)
       .then(setInsights)
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load insights"));
-  }, [productId]);
+  }, [productId, ratingFilter]);
 
   if (error) return <Card className="max-w-lg text-negative">{error}</Card>;
   if (!insights) return <div className="text-muted">Loading insights&hellip;</div>;
@@ -38,13 +49,37 @@ export default function ProductDashboardPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{insights.product_name}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold tracking-tight">{insights.product_name}</h1>
+            {insights.verified_brand && (
+              <Badge variant="positive" className="flex items-center gap-1">
+                <ShieldCheck size={12} /> Verified &middot; {insights.verified_brand}
+              </Badge>
+            )}
+          </div>
           <p className="text-muted">{insights.product_id}</p>
         </div>
-        <a href={exportUrl} target="_blank" rel="noreferrer">
-          <Button variant="outline">Export report</Button>
-        </a>
+        <div className="flex items-center gap-2">
+          <select
+            value={ratingFilter}
+            onChange={(e) => setRatingFilter(e.target.value)}
+            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+          >
+            <option value="all">All ratings</option>
+            <option value="high">4-5 stars</option>
+            <option value="mid">3 stars</option>
+            <option value="low">1-2 stars</option>
+          </select>
+          <a href={exportUrl} target="_blank" rel="noreferrer">
+            <Button variant="outline">Export CSV</Button>
+          </a>
+          <a href={exportUrl.replace("format=csv", "format=pdf")} target="_blank" rel="noreferrer">
+            <Button variant="outline">Export PDF</Button>
+          </a>
+        </div>
       </div>
+
+      <Card className="text-sm leading-relaxed">{insights.summary_text}</Card>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         <Card>
@@ -134,6 +169,8 @@ export default function ProductDashboardPage() {
       </Card>
 
       <EvidencePanel insights={insights} onSelectReview={setSelectedReview} />
+
+      <CommentsSection productId={insights.product_id} />
 
       <ExplainDrawer
         reviewId={selectedReview}

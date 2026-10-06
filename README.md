@@ -1,17 +1,25 @@
-# Voxa - Retail Review Insights
+# Voxa - Retail Review Insights & Customer-Brand Portal
 
-Voxa is an intelligent retail review analytics platform that ingests raw customer feedback, performs granular clause-level sentiment and theme extraction, and delivers actionable product insights through an interactive dashboard.
+Voxa is an intelligent retail review analytics platform and portal that bridges brands and shoppers. It ingests customer feedback, performs granular clause-level sentiment and theme extraction, and delivers actionable product insights alongside customer discussion spaces.
 
 ---
 
 ## 🚀 Key Features
 
-- **Granular Review Processing**: Splitting compound review sentences into clauses to accurately map sentiment across distinct themes (e.g., quality, delivery, packaging, sizing, value).
-- **Flexible Data Ingestion**: Auto-detects columns from CSV and Excel files, validating data and mapping fields seamlessly.
-- **Product Insights & Comparison**: Side-by-side product metrics, thematic breakdowns, and trend analysis.
-- **Explainability & Verification**: Drill down into review clauses with evidence panels and review flags for low confidence or ambiguous sentiments.
-- **Modern Full-Stack Architecture**:
-  - **Backend**: FastAPI (Python 3.10+) with analytical pipelines and data export (CSV/PDF).
+- **Interactive Landing Page (`/`)**: Modern showcase with feature highlights, quick-start entrypoints, and portal overviews.
+- **Dual-Role Authentication (`/signup`, `/login`)**: Dedicated onboarding for **Customers** and **Brands** (with brand verification tag).
+- **Customer Portal (`/browse` & `/browse/[id]`)**:
+  - Browse verified brand products and real-time sentiment analytics.
+  - Granular clause breakdowns (quality, delivery, packaging, sizing, value).
+  - Reddit-style interactive discussion threads with nested replies and voting.
+- **Brand Management Portal (`/brand/import`)**:
+  - Authenticated ingestion pipeline for CSV and Excel files.
+  - Auto-detected header mapping with live preview and confirmation.
+  - Attaches verified brand provenance to imported products.
+- **Granular Review Processing**: Splitting compound review sentences into clauses to accurately map sentiment across distinct themes.
+- **Explainability & Verification (`/compare`, `/needs-review`)**: Evidence panels and low-confidence flags for human-in-the-loop review.
+- **Full-Stack Architecture**:
+  - **Backend**: FastAPI (Python 3.10+) with modular pipelines, comments, auth, and analytics.
   - **Frontend**: Next.js 15 (App Router), React, TypeScript, Tailwind CSS, Lucide Icons.
 
 ---
@@ -23,8 +31,10 @@ Voxa is an intelligent retail review analytics platform that ingests raw custome
 │   ├── app/
 │   │   ├── config/          # Pipeline configurations & theme definitions
 │   │   ├── data/            # Data generators & synthetic datasets
-│   │   ├── pipeline/        # Ingest, clause splitting, sentiment, theme fusion
+│   │   ├── pipeline/        # Ingest, clause splitting, sentiment, theme fusion, LLM rewrite
 │   │   ├── analytics.py     # Aggregation and metric calculations
+│   │   ├── auth.py          # Account authentication & role management
+│   │   ├── comments.py      # Discussion threads, nested replies, voting
 │   │   ├── export.py        # CSV & PDF export utilities
 │   │   ├── main.py          # FastAPI application routes
 │   │   └── store.py         # In-memory / storage management
@@ -33,9 +43,9 @@ Voxa is an intelligent retail review analytics platform that ingests raw custome
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── app/             # Next.js App Router (Upload, Products, Compare, Review)
-│   │   ├── components/      # UI components (Charts, Evidence panel, Drawer, Nav)
-│   │   └── lib/             # API client and utilities
+│   │   ├── app/             # Next.js App Router (Landing, Browse, Brand, Login, Signup)
+│   │   ├── components/      # UI components (Charts, Comments, Evidence, Nav)
+│   │   └── lib/             # API client, auth context, and utilities
 │   ├── package.json         # Node.js dependencies
 │   └── tsconfig.json        # TypeScript configuration
 ```
@@ -74,5 +84,5 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ## 🧪 Testing with Sample Data
 1. Open the frontend at `http://localhost:3000`.
-2. Upload `backend/sample_reviews.csv`.
-3. Explore the generated insights, comparison tools, and explainability features.
+2. Browse pre-seeded products under **Browse** or sign up as a **Brand** and upload `backend/sample_reviews.csv` in **Import Reviews**.
+3. Check out the interactive sentiment breakdown, trends, and product discussion threads.

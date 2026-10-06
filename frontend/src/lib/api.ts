@@ -15,6 +15,26 @@ export type ProductSummary = {
   product_name: string;
   review_count: number;
   avg_rating: number;
+  verified_brand: string | null;
+};
+
+export type AuthUser = {
+  id: string;
+  email: string;
+  role: "customer" | "brand";
+  display_name: string;
+  brand_name: string | null;
+};
+
+export type Comment = {
+  id: string;
+  product_id: string;
+  author_name: string;
+  text: string;
+  created_at: string;
+  parent_id: string | null;
+  upvotes: number;
+  replies: Comment[];
 };
 
 export type ThemeSummary = {
@@ -57,6 +77,18 @@ export type ProductInsights = {
   needs_review_count: number;
   evidence: Record<string, { positive: EvidenceClause[]; negative: EvidenceClause[] }>;
   trend: TrendPoint[];
+  summary_text: string;
+  verified_brand: string | null;
+};
+
+export type MappingPreview = {
+  columns: string[];
+  sample_rows: Record<string, string>[];
+  detected_mapping: Record<string, string>;
+  unmapped_required: string[];
+  dropped_reviewer_columns: string[];
+  row_count: number;
+  canonical_fields: string[];
 };
 
 export type ThemeScoreDetail = {
@@ -97,8 +129,22 @@ export type NeedsReviewItem = {
   confidence_agreement: number;
 };
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, init);
+function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return localStorage.getItem("auth_token");
+  } catch {
+    return null;
+  }
+}
+
+async function request<T>(path: string, init?: RequestInit, auth = false): Promise<T> {
+  const headers = new Headers(init?.headers);
+  if (auth) {
+    const token = getToken();
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+  }
+  const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: res.statusText }));
     throw new Error(body.detail ?? `Request failed: ${res.status}`);
@@ -107,14 +153,52 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  upload: async (file: File): Promise<{ message: string; report: ImportReport }> => {
+  signup: (data: {
+    email: string;
+    password: string;
+    role: "customer" | "brand";
+    display_name: string;
+    brand_name?: string;
+  }) =>
+    request<{ token: string; user: AuthUser }>("/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }),
+  login: (email: string, password: string) =>
+    request<{ token: string; user: AuthUser }>("/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    }),
+  me: () => request<AuthUser>("/auth/me", {}, true),
+
+  previewUpload: async (file: File): Promise<MappingPreview> => {
     const form = new FormData();
     form.append("file", file);
-    return request("/upload", { method: "POST", body: form });
+    return request("/upload/preview", { method: "POST", body: form });
+  },
+  upload: async (
+    file: File,
+    mapping?: Record<string, string>,
+    asBrand = false
+  ): Promise<{ message: string; report: ImportReport }> => {
+    const form = new FormData();
+    form.append("file", file);
+    if (mapping) form.append("mapping", JSON.stringify(mapping));
+    if (asBrand) form.append("as_brand", "true");
+    return request("/upload", { method: "POST", body: form }, true);
   },
   listProducts: () => request<ProductSummary[]>("/products"),
-  productInsights: (productId: string) =>
-    request<ProductInsights>(`/products/${encodeURIComponent(productId)}/insights`),
+  productInsights: (productId: string, minRating?: number, maxRating?: number) => {
+    const params = new URLSearchParams();
+    if (minRating !== undefined) params.set("min_rating", String(minRating));
+    if (maxRating !== undefined) params.set("max_rating", String(maxRating));
+    const qs = params.toString();
+    return request<ProductInsights>(
+      `/products/${encodeURIComponent(productId)}/insights${qs ? `?${qs}` : ""}`
+    );
+  },
   compare: (a: string, b: string) =>
     request<{ a: ProductInsights; b: ProductInsights }>(
       `/compare?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`
@@ -122,4 +206,23 @@ export const api = {
   explainReview: (reviewId: string) =>
     request<ReviewExplain>(`/review/${encodeURIComponent(reviewId)}/explain`),
   needsReview: (limit = 100) => request<NeedsReviewItem[]>(`/needs-review?limit=${limit}`),
+
+  getComments: (productId: string) =>
+    request<Comment[]>(`/products/${encodeURIComponent(productId)}/comments`),
+  postComment: (productId: string, text: string, parentId?: string) =>
+    request<{ id: string }>(
+      `/products/${encodeURIComponent(productId)}/comments`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, parent_id: parentId ?? null }),
+      },
+      true
+    ),
+  upvoteComment: (productId: string, commentId: string) =>
+    request<{ id: string; upvotes: number }>(
+      `/products/${encodeURIComponent(productId)}/comments/${encodeURIComponent(commentId)}/upvote`,
+      { method: "POST" },
+      true
+    ),
 };

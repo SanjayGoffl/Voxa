@@ -1,10 +1,9 @@
 """FastAPI app entrypoint.
 
-/upload/preview lets the caller see the auto-detected column mapping (and
-what it couldn't confidently detect) before committing to an import -- not
-every spreadsheet has clean, predictable headers. /upload accepts an
-optional explicit mapping (as produced/edited from that preview); without
-one it falls back to full auto-detection.
+Two kinds of accounts: "customer" (browses products, reads/writes comments)
+and "brand" (everything a customer can do, plus importing their own review
+data for their products -- imports from a brand account mark that product
+as a verified brand listing rather than an anonymous import).
 """
 from __future__ import annotations
 
@@ -13,9 +12,10 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+from pydantic import BaseModel
 
 from app.analytics import (
     build_product_insights,
@@ -24,6 +24,8 @@ from app.analytics import (
     list_products,
     needs_review_list,
 )
+from app.auth import User, login, optional_user, require_user, signup, user_to_dict
+from app.comments import add_comment, build_thread, upvote
 from app.export import build_csv, build_pdf
 from app.pipeline.ingest import (
     SUPPORTED_EXTENSIONS,
@@ -34,7 +36,7 @@ from app.pipeline.ingest import (
     report_to_dict,
 )
 from app.pipeline.run_pipeline import analyze_dataframe
-from app.store import set_analysis, set_reviews
+from app.store import add_analysis, add_reviews, get_product_owner, set_product_owner
 
 app = FastAPI(title="Retail Review Insights")
 
@@ -63,12 +65,50 @@ def health() -> dict:
     return {"status": "ok"}
 
 
+# --- Auth -------------------------------------------------------------
+
+
+class SignupBody(BaseModel):
+    email: str
+    password: str
+    role: str  # "customer" | "brand"
+    display_name: str = ""
+    brand_name: str | None = None
+
+
+class LoginBody(BaseModel):
+    email: str
+    password: str
+
+
+@app.post("/auth/signup")
+def auth_signup(body: SignupBody) -> dict:
+    try:
+        user, token = signup(body.email, body.password, body.role, body.display_name, body.brand_name)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"token": token, "user": user_to_dict(user)}
+
+
+@app.post("/auth/login")
+def auth_login(body: LoginBody) -> dict:
+    try:
+        user, token = login(body.email, body.password)
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    return {"token": token, "user": user_to_dict(user)}
+
+
+@app.get("/auth/me")
+def auth_me(user: User = Depends(require_user)) -> dict:
+    return user_to_dict(user)
+
+
+# --- Import -------------------------------------------------------------
+
+
 @app.post("/upload/preview")
 async def upload_preview(file: UploadFile = File(...)) -> dict:
-    """Reads the file and returns the auto-detected column mapping, sample
-    rows, and any required fields it couldn't confidently map -- so the
-    caller can let a human confirm or correct the mapping before import.
-    """
     tmp_path = _save_upload(file)
     try:
         preview = detect_mapping(str(tmp_path))
@@ -80,13 +120,28 @@ async def upload_preview(file: UploadFile = File(...)) -> dict:
 
 
 @app.post("/upload")
-async def upload(file: UploadFile = File(...), mapping: str | None = Form(None)) -> dict:
-    """Imports a review file. If `mapping` (JSON object: canonical field ->
-    source column) is supplied, it is used as-is -- this is how a
-    human-corrected mapping from /upload/preview gets applied. Otherwise the
-    importer auto-detects the mapping and fails loudly if it can't do so
-    confidently, rather than guessing.
+async def upload(
+    file: UploadFile = File(...),
+    mapping: str | None = Form(None),
+    as_brand: bool = Form(False),
+    user: User | None = Depends(optional_user),
+) -> dict:
+    """Imports a review file into the shared running dataset.
+
+    If `as_brand` is true, the caller must be authenticated as a brand
+    account; every product_id in this file is then marked as a verified
+    listing owned by that brand (shown with a verified badge to customers),
+    distinct from an anonymous/unverified import of the same product.
+
+    A product_id already owned by a *different* brand can never be claimed
+    or touched by this upload -- that would let anyone overwrite another
+    brand's verified listing (or dilute it with anonymous rows) just by
+    reusing its product_id. The whole upload is rejected in that case,
+    before any data is written.
     """
+    if as_brand and (user is None or user.role != "brand"):
+        raise HTTPException(status_code=403, detail="Brand account required to import as a brand")
+
     tmp_path = _save_upload(file)
     try:
         if mapping:
@@ -102,11 +157,32 @@ async def upload(file: UploadFile = File(...), mapping: str | None = Form(None))
     finally:
         tmp_path.unlink(missing_ok=True)
 
-    set_reviews(df)
+    conflicting_products = []
+    for product_id in df["product_id"].unique():
+        owner = get_product_owner(product_id)
+        if owner is not None and (user is None or owner["brand_id"] != user.id):
+            conflicting_products.append(product_id)
+    if conflicting_products:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "These products are already verified under another brand and cannot be "
+                f"modified by this upload: {conflicting_products}"
+            ),
+        )
+
+    add_reviews(df)
     clause_results, review_sentiments = analyze_dataframe(df)
-    set_analysis(clause_results, review_sentiments)
+    add_analysis(clause_results, review_sentiments)
+
+    if as_brand and user is not None:
+        for product_id in df["product_id"].unique():
+            set_product_owner(product_id, user.id, user.brand_name or user.display_name)
 
     return {"message": "upload complete", "report": report_to_dict(report)}
+
+
+# --- Analytics -------------------------------------------------------------
 
 
 @app.get("/products")
@@ -119,10 +195,15 @@ def get_product_insights(
     product_id: str,
     min_rating: int | None = Query(None, ge=1, le=5),
     max_rating: int | None = Query(None, ge=1, le=5),
+    polish_summary: bool = Query(False),
 ) -> dict:
     insights = build_product_insights(product_id, min_rating=min_rating, max_rating=max_rating)
     if insights is None:
         raise HTTPException(status_code=404, detail=f"No data for product '{product_id}'")
+    if polish_summary:
+        from app.pipeline.llm_rewrite import rewrite_summary
+
+        insights["summary_text"] = rewrite_summary(insights["summary_text"])
     return insights
 
 
@@ -168,3 +249,33 @@ def export_report(product: str = Query(...), format: str = Query("csv")) -> Resp
             headers={"Content-Disposition": f'attachment; filename="{product}_insights.pdf"'},
         )
     raise HTTPException(status_code=400, detail="format must be 'csv' or 'pdf'")
+
+
+# --- Comments -------------------------------------------------------------
+
+
+class CommentBody(BaseModel):
+    text: str
+    parent_id: str | None = None
+
+
+@app.get("/products/{product_id}/comments")
+def get_comments(product_id: str) -> list[dict]:
+    return build_thread(product_id)
+
+
+@app.post("/products/{product_id}/comments")
+def post_comment(product_id: str, body: CommentBody, user: User = Depends(require_user)) -> dict:
+    try:
+        comment = add_comment(product_id, user.id, user.display_name, body.text, body.parent_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"id": comment.id}
+
+
+@app.post("/products/{product_id}/comments/{comment_id}/upvote")
+def upvote_comment(product_id: str, comment_id: str, user: User = Depends(require_user)) -> dict:
+    comment = upvote(comment_id, user.id, product_id)
+    if comment is None:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    return {"id": comment.id, "upvotes": comment.upvotes}

@@ -1,6 +1,11 @@
 """Template-based strengths/issues summary, filled from the numbers and
 evidence excerpts analytics already computed. No LLM call -- pure string
 templating, deterministic and offline.
+
+Everything here reports what the reviews say (sentiment, theme counts,
+excerpts) -- it never tells the brand what action to take. That framing is
+deliberate: a template/small-model summarizer can't be trusted to reason
+about business strategy, only to restate the numbers it was given.
 """
 from __future__ import annotations
 
@@ -48,3 +53,29 @@ def build_summary_text(insights: dict) -> str:
         )
 
     return " ".join(lines)
+
+
+def build_theme_quick_summaries(insights: dict) -> dict[str, str]:
+    """One factual line per theme that has any mentions -- what the reviews
+    say about that theme, not what to do about it. Deterministic, so it's
+    exactly as accurate as the counts it's built from.
+    """
+    out: dict[str, str] = {}
+    for t in insights["theme_summary"]:
+        theme, pos, neg, neu, total = (
+            t["theme"], t["positive_count"], t["negative_count"], t["neutral_count"], t["total_mentions"],
+        )
+        if total == 0:
+            continue
+        if pos and not neg:
+            out[theme] = f"Mentioned positively in {pos} of {total} clause(s); no negative mentions."
+        elif neg and not pos:
+            out[theme] = f"Mentioned negatively in {neg} of {total} clause(s) ({t['negative_share'] * 100:.0f}% negative); no positive mentions."
+        elif pos and neg:
+            out[theme] = (
+                f"Mixed: {pos} positive and {neg} negative mention(s) out of {total} "
+                f"({t['negative_share'] * 100:.0f}% negative)."
+            )
+        else:
+            out[theme] = f"Mentioned {total} time(s), mostly neutral in tone."
+    return out

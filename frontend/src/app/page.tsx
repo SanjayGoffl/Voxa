@@ -1,128 +1,124 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
-import { api, type ImportReport } from "@/lib/api";
-import { Card, CardTitle, CardValue } from "@/components/ui/card";
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UploadCloud, FileWarning, CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import {
+  Search,
+  MessageSquareText,
+  BarChart3,
+  ShieldCheck,
+  TrendingUp,
+  FileSearch,
+} from "lucide-react";
 
-export default function UploadPage() {
-  const router = useRouter();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [report, setReport] = useState<ImportReport | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [fileName, setFileName] = useState<string | null>(null);
-
-  async function handleFile(file: File) {
-    setLoading(true);
-    setError(null);
-    setReport(null);
-    setFileName(file.name);
-    try {
-      const result = await api.upload(file);
-      setReport(result.report);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
-    } finally {
-      setLoading(false);
-    }
-  }
+export default function LandingPage() {
+  const { user } = useAuth();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Import review data</h1>
-        <p className="mt-1 text-muted">
-          Upload a CSV of customer reviews. Columns map flexibly by name (review_id, product_id
-          or product_name, rating, review_text, date). Reviewer/user columns are dropped
-          automatically &mdash; this tool produces product-level insights only.
+    <div className="mx-auto max-w-5xl space-y-16">
+      <section className="space-y-6 py-10 text-center">
+        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--accent)]">
+          Product-level insight, not reviewer profiling
+        </span>
+        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+          Know what customers actually think &mdash; by theme, not by guesswork
+        </h1>
+        <p className="mx-auto max-w-2xl text-lg text-muted">
+          Browse products, read real reviews and discussion threads, and see sentiment, recurring
+          themes, and trends extracted from the text itself &mdash; every claim backed by a
+          quoted excerpt.
         </p>
-      </div>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link href="/browse">
+            <Button className="px-6 py-3 text-base">
+              <Search size={18} /> Browse products
+            </Button>
+          </Link>
+          {user?.role === "brand" ? (
+            <Link href="/brand/import">
+              <Button variant="outline" className="px-6 py-3 text-base">
+                <ShieldCheck size={18} /> Import your product reviews
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/signup">
+              <Button variant="outline" className="px-6 py-3 text-base">
+                <ShieldCheck size={18} /> For brands &amp; retailers
+              </Button>
+            </Link>
+          )}
+        </div>
+      </section>
 
-      <Card
-        className="flex flex-col items-center justify-center gap-3 border-dashed py-12 text-center cursor-pointer"
-        onClick={() => inputRef.current?.click()}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => {
-          e.preventDefault();
-          const file = e.dataTransfer.files?.[0];
-          if (file) handleFile(file);
-        }}
-      >
-        <UploadCloud size={32} className="text-[var(--accent)]" />
-        <div className="font-medium">Drop a CSV file here, or click to browse</div>
-        {fileName && <div className="text-sm text-muted">{fileName}</div>}
-        <input
-          ref={inputRef}
-          type="file"
-          accept=".csv"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleFile(file);
-          }}
+      <section className="grid gap-4 sm:grid-cols-3">
+        <FeatureCard
+          icon={<Search size={20} />}
+          title="Discover &amp; compare"
+          body="Search the catalog, open any product's full review breakdown, and compare two products side by side."
         />
-      </Card>
+        <FeatureCard
+          icon={<MessageSquareText size={20} />}
+          title="Discuss"
+          body="A Reddit-style comment thread on every product &mdash; ask questions, share your own experience, upvote the most useful replies."
+        />
+        <FeatureCard
+          icon={<ShieldCheck size={20} />}
+          title="Verified brands"
+          body="Brands import their own review data directly and get a verified badge, so you know it isn't a random anonymous dump."
+        />
+        <FeatureCard
+          icon={<BarChart3 size={20} />}
+          title="Theme-level analytics"
+          body="Quality, delivery, packaging, size/fit, value, usability &mdash; sentiment and mention counts broken out per theme, not just a star average."
+        />
+        <FeatureCard
+          icon={<TrendingUp size={20} />}
+          title="Trends over time"
+          body="Monthly sentiment and per-theme negative-rate trends show whether an issue is improving or getting worse."
+        />
+        <FeatureCard
+          icon={<FileSearch size={20} />}
+          title="Explainable, always"
+          body="Every label traces back to the exact clause and signal scores that produced it &mdash; open 'Why this label?' on any excerpt."
+        />
+      </section>
 
-      {loading && <Card className="text-sm text-muted">Processing upload and running the pipeline&hellip;</Card>}
-
-      {error && (
-        <Card className="flex items-start gap-3 text-negative">
-          <FileWarning size={20} className="mt-0.5 shrink-0" />
-          <div>{error}</div>
-        </Card>
-      )}
-
-      {report && (
-        <Card className="space-y-4">
-          <div className="flex items-center gap-2 text-positive">
-            <CheckCircle2 size={20} />
-            <span className="font-medium">Upload complete</span>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <CardTitle>Total rows</CardTitle>
-              <CardValue>{report.total_rows}</CardValue>
-            </div>
-            <div>
-              <CardTitle>Valid rows</CardTitle>
-              <CardValue className="text-positive">{report.valid_rows}</CardValue>
-            </div>
-            <div>
-              <CardTitle>Dropped rows</CardTitle>
-              <CardValue className={report.dropped_rows > 0 ? "text-negative" : ""}>
-                {report.dropped_rows}
-              </CardValue>
-            </div>
-          </div>
-
-          {report.dropped_reviewer_columns.length > 0 && (
-            <div className="rounded-lg bg-[var(--accent-soft)] p-3 text-sm">
-              Dropped reviewer/user columns: {report.dropped_reviewer_columns.join(", ")}
-            </div>
-          )}
-
-          {report.row_errors.length > 0 && (
-            <details className="text-sm">
-              <summary className="cursor-pointer text-muted">
-                {report.row_errors.length} row error(s)
-              </summary>
-              <ul className="mt-2 space-y-1 text-muted">
-                {report.row_errors.map((err, i) => (
-                  <li key={i}>
-                    Row {err.row} ({err.review_id}): {err.reason}
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
-
-          <Button onClick={() => router.push("/products")}>View product dashboard</Button>
-        </Card>
-      )}
+      <section className="solid-panel p-8 text-center">
+        <h2 className="text-xl font-semibold">Running your own review data?</h2>
+        <p className="mt-2 text-muted">
+          Create a brand account to import your product reviews as a verified source, or sign up
+          as a customer to browse, compare, and join the discussion.
+        </p>
+        <div className="mt-4 flex justify-center gap-3">
+          <Link href="/signup">
+            <Button>Create an account</Button>
+          </Link>
+          <Link href="/browse">
+            <Button variant="outline">Browse without an account</Button>
+          </Link>
+        </div>
+      </section>
     </div>
+  );
+}
+
+function FeatureCard({
+  icon,
+  title,
+  body,
+}: {
+  icon: ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <Card className="space-y-2">
+      <div className="text-[var(--accent)]">{icon}</div>
+      <h3 className="font-medium">{title}</h3>
+      <p className="text-sm text-muted">{body}</p>
+    </Card>
   );
 }

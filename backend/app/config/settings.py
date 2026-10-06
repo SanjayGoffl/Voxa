@@ -14,6 +14,14 @@ SPACY_MODEL = "en_core_web_sm"
 USE_NLI_VERIFIER = True  # run NLI only on low-confidence clauses
 NLI_CONFIDENCE_TRIGGER = 0.15  # semantic/lexical score gap below which NLI is invoked
 
+# Optional small-model rewrite of the template summary into smoother prose.
+# Off by default: it adds a ~300MB model load and ~1-2s per product, and the
+# template summary is already a complete, accurate statement of the numbers.
+# When on, the model is instructed to rephrase ONLY -- it is never given
+# license to add claims, advice, or numbers it wasn't handed.
+USE_LLM_SUMMARY_REWRITE = False
+LLM_SUMMARY_MODEL = "google/flan-t5-small"
+
 # --- Fusion weights (theme score = semantic * W_SEM + lexical * W_LEX [+ nli * W_NLI]) ---
 THEME_FUSION_WEIGHTS = {
     "semantic": 0.6,

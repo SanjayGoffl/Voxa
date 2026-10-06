@@ -11,9 +11,9 @@ import pandas as pd
 
 from app.config.themes import THEMES
 from app.pipeline.fusion import ClauseResult
-from app.pipeline.summary import build_summary_text
+from app.pipeline.summary import build_summary_text, build_theme_quick_summaries
 from app.pipeline.theme_semantic import _get_model
-from app.store import get_clause_results, get_review_sentiments, get_reviews
+from app.store import get_all_product_owners, get_clause_results, get_product_owner, get_review_sentiments, get_reviews
 
 SENTIMENT_TO_SCORE = {"negative": -1.0, "neutral": 0.0, "positive": 1.0}
 EVIDENCE_TOP_N = 3
@@ -33,14 +33,17 @@ def list_products() -> list[dict]:
     grouped = df.groupby(["product_id", "product_name"]).agg(
         review_count=("review_id", "count"), avg_rating=("rating", "mean")
     )
+    owners = get_all_product_owners()
     out = []
     for (pid, pname), row in grouped.iterrows():
+        owner = owners.get(pid)
         out.append(
             {
                 "product_id": pid,
                 "product_name": pname,
                 "review_count": int(row["review_count"]),
                 "avg_rating": round(float(row["avg_rating"]), 2),
+                "verified_brand": owner["brand_name"] if owner else None,
             }
         )
     return sorted(out, key=lambda r: -r["review_count"])
@@ -229,6 +232,9 @@ def build_product_insights(
         "trend": trend,
     }
     result["summary_text"] = build_summary_text(result)
+    result["theme_quick_summaries"] = build_theme_quick_summaries(result)
+    owner = get_product_owner(product_id)
+    result["verified_brand"] = owner["brand_name"] if owner else None
     return result
 
 
